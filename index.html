@@ -901,15 +901,40 @@
 
             const handleFormSubmit = async (e) => {
                 e.preventDefault();
-                console.log('Form submitted');
+                console.log('Form submitted, event target:', e.target);
 
                 const form = e.target;
-                const modalName = form.id.split('-')[0];
+                console.log('Form element:', form);
+                console.log('Form tagName:', form.tagName);
+
+                // Garantir que estamos lidando com um elemento form
+                if (form.tagName !== 'FORM') {
+                    console.error('Event target não é um formulário:', form);
+                    alert('Erro: Elemento não é um formulário');
+                    return;
+                }
+
+                const formId = form.getAttribute('id') || form.id;
+                console.log('Form ID:', formId, 'Type:', typeof formId);
+
+                if (!formId || typeof formId !== 'string') {
+                    console.error('Form ID inválido:', formId);
+                    alert('Erro: ID do formulário não encontrado');
+                    return;
+                }
+
+                const modalName = formId.split('-')[0];
                 console.log('Modal name:', modalName);
 
                 const dataMap = { student: 'students', content: 'content', course: 'courses' };
                 const dataKey = dataMap[modalName];
                 console.log('Data key:', dataKey);
+
+                if (!dataKey) {
+                    console.error('Modal name inválido:', modalName);
+                    alert('Erro: Tipo de formulário não reconhecido');
+                    return;
+                }
 
                 // Ensure the data array exists
                 if (!appData[dataKey]) {
@@ -1063,7 +1088,12 @@
 
                 // Form submissions
                 Object.values(DOMElements.forms).forEach(form => {
-                    form.addEventListener('submit', handleFormSubmit);
+                    if (form) {
+                        console.log('Configurando event listener para form:', form.id);
+                        form.addEventListener('submit', handleFormSubmit);
+                    } else {
+                        console.error('Form element não encontrado');
+                    }
                 });
 
                 // Edit/Delete buttons (event delegation)
